@@ -1,0 +1,2377 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DXスカウター｜企業DX戦闘力診断</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* =============================================
+   ROOT & RESET
+   ============================================= */
+:root {
+  --bg:      #040810;
+  --bg2:     #080f1e;
+  --bg3:     #0c1426;
+  --bg4:     #101c32;
+  --accent:  #00e5ff;
+  --accent2: #ff6b00;
+  --accent3: #7c4dff;
+  --gold:    #ffd600;
+  --text:    #dce8f5;
+  --text2:   #7a9ab8;
+  --green:   #00e676;
+  --red:     #ff1744;
+  --border:  rgba(0,229,255,0.18);
+  --glow:    0 0 24px rgba(0,229,255,0.4);
+  --glow-o:  0 0 20px rgba(255,107,0,0.5);
+  --glow-g:  0 0 20px rgba(0,230,118,0.4);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+button { font-family: inherit; cursor: pointer; }
+
+/* =============================================
+   STARS BACKGROUND
+   ============================================= */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 40%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 15% 90%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 50%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25% 35%, rgba(0,229,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 65% 70%, rgba(124,77,255,0.3) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* =============================================
+   HEADER
+   ============================================= */
+.header {
+  background: rgba(4,8,16,0.92);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  backdrop-filter: blur(12px);
+}
+.logo {
+  font-family: 'Orbitron', monospace;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--accent);
+  letter-spacing: 3px;
+  text-shadow: var(--glow);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-icon {
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: var(--glow);
+  animation: logo-pulse 2s ease-in-out infinite;
+}
+@keyframes logo-pulse {
+  0%,100% { box-shadow: 0 0 10px rgba(0,229,255,0.4); }
+  50% { box-shadow: 0 0 25px rgba(0,229,255,0.8), 0 0 50px rgba(0,229,255,0.3); }
+}
+.logo-dx { color: var(--accent); }
+.logo-sc { color: var(--gold); }
+.nav-group { display: flex; gap: 8px; }
+.nav-btn {
+  background: transparent;
+  border: 1px solid rgba(0,229,255,0.2);
+  color: var(--text2);
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: all 0.25s;
+  letter-spacing: 0.5px;
+}
+.nav-btn:hover, .nav-btn.active {
+  background: rgba(0,229,255,0.08);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 12px rgba(0,229,255,0.2);
+}
+
+/* =============================================
+   PAGES
+   ============================================= */
+.page { display: none; position: relative; z-index: 1; }
+.page.active { display: block; }
+
+/* =============================================
+   HERO / START
+   ============================================= */
+.hero {
+  min-height: calc(100vh - 57px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ki aura rings */
+.aura-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(0,229,255,0.06);
+  pointer-events: none;
+  animation: aura-expand 5s ease-out infinite;
+}
+.aura-ring:nth-child(1) { width:700px;height:700px; animation-delay:0s; }
+.aura-ring:nth-child(2) { width:500px;height:500px; animation-delay:1.5s; border-color: rgba(124,77,255,0.08); }
+.aura-ring:nth-child(3) { width:300px;height:300px; animation-delay:3s; border-color: rgba(255,214,0,0.06); }
+@keyframes aura-expand {
+  0%   { transform: scale(0.7); opacity: 0; }
+  30%  { opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.scouter-hero-icon {
+  font-size: 72px;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+  animation: float 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(0,229,255,0.6));
+}
+@keyframes float {
+  0%,100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-14px) rotate(3deg); }
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(124,77,255,0.12);
+  border: 1px solid rgba(124,77,255,0.35);
+  color: #b39ddb;
+  font-size: 11px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+  position: relative;
+  z-index: 1;
+}
+.hero-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: #b39ddb;
+  border-radius: 50%;
+  animation: blink 1.5s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+
+.hero h1 {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(32px, 6vw, 58px);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: 4px;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 6px;
+}
+.h1-dx   { color: var(--accent);  text-shadow: var(--glow); }
+.h1-sub  { color: var(--gold);    text-shadow: 0 0 20px rgba(255,214,0,0.5); font-size: 60%; letter-spacing: 6px; display: block; margin-top: 4px; }
+
+.hero-tagline {
+  font-size: 13px;
+  color: var(--text2);
+  letter-spacing: 5px;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+  text-transform: uppercase;
+}
+.hero-desc {
+  max-width: 520px;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.9;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 1;
+  opacity: 0.85;
+}
+
+/* =============================================
+   REGISTRATION FORM
+   ============================================= */
+.form-card {
+  background: rgba(8,15,30,0.9);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px;
+  max-width: 580px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 40px rgba(0,229,255,0.08);
+}
+.form-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: linear-gradient(135deg, rgba(0,229,255,0.15), transparent, rgba(124,77,255,0.1)) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.form-section-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 3px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.form-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.form-group { display: flex; flex-direction: column; gap: 7px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label {
+  font-size: 10px;
+  color: var(--text2);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.form-input, .form-select {
+  background: var(--bg3);
+  border: 1px solid rgba(0,229,255,0.15);
+  color: var(--text);
+  padding: 11px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Noto Sans JP', sans-serif;
+  outline: none;
+  transition: all 0.2s;
+}
+.form-input:focus, .form-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(0,229,255,0.12);
+}
+.form-input::placeholder { color: var(--text2); opacity: 0.5; }
+.form-select option { background: var(--bg3); }
+
+/* =============================================
+   PRIMARY BUTTON
+   ============================================= */
+.btn-primary {
+  background: linear-gradient(135deg, #0091ea 0%, #006db3 50%, #00b8d4 100%);
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  width: 100%;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 3px;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 40%;
+  height: 200%;
+  background: rgba(255,255,255,0.15);
+  transform: skewX(-20deg);
+  transition: left 0.5s;
+}
+.btn-primary:hover::before { left: 130%; }
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0,145,234,0.45), var(--glow);
+}
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* =============================================
+   QUIZ SCREEN
+   ============================================= */
+.quiz-wrapper {
+  min-height: calc(100vh - 57px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+}
+.quiz-box {
+  background: rgba(8,15,30,0.92);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px;
+  max-width: 760px;
+  width: 100%;
+  box-shadow: 0 0 60px rgba(0,229,255,0.06);
+}
+.quiz-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.quiz-cat-tag {
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.quiz-cat-tag::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: var(--glow);
+}
+.quiz-counter {
+  font-family: 'Orbitron', monospace;
+  font-size: 12px;
+  color: var(--text2);
+  letter-spacing: 1px;
+}
+.quiz-progress {
+  height: 3px;
+  background: var(--bg3);
+  border-radius: 2px;
+  margin-bottom: 32px;
+  overflow: hidden;
+}
+.quiz-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #00b8d4, var(--accent3));
+  border-radius: 2px;
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  background-size: 200%;
+  animation: shimmer 2s linear infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.quiz-question {
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.75;
+  margin-bottom: 28px;
+  color: var(--text);
+}
+.options-list { display: flex; flex-direction: column; gap: 12px; }
+.opt-btn {
+  background: var(--bg3);
+  border: 1px solid rgba(0,229,255,0.12);
+  border-radius: 10px;
+  padding: 15px 18px;
+  text-align: left;
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Noto Sans JP', sans-serif;
+  line-height: 1.6;
+  transition: all 0.2s;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.opt-btn::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: transparent;
+  border-radius: 10px 0 0 10px;
+  transition: background 0.2s;
+}
+.opt-btn:hover {
+  border-color: rgba(0,229,255,0.4);
+  background: rgba(0,229,255,0.04);
+  transform: translateX(5px);
+}
+.opt-btn:hover::after { background: var(--accent); }
+.opt-btn.correct {
+  border-color: var(--green);
+  background: rgba(0,230,118,0.08);
+  pointer-events: none;
+}
+.opt-btn.correct::after { background: var(--green); }
+.opt-btn.wrong {
+  border-color: var(--accent2);
+  background: rgba(255,107,0,0.08);
+  pointer-events: none;
+  opacity: 0.6;
+}
+.opt-btn.disabled { pointer-events: none; opacity: 0.45; }
+.opt-key {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 18px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.opt-btn.correct .opt-key { color: var(--green); }
+.opt-btn.wrong   .opt-key { color: var(--accent2); }
+
+/* =============================================
+   POWER LEVEL SCANNING OVERLAY (DB style)
+   ============================================= */
+#scanOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+  overflow: hidden;
+}
+#scanOverlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Deep space bg */
+#scanOverlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, #040d1c 0%, #000308 100%);
+}
+
+/* Energy beam lines */
+.scan-beam {
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.6) 40%, rgba(0,229,255,1) 50%, rgba(0,229,255,0.6) 60%, transparent 100%);
+  animation: beam-sweep 0.8s linear infinite;
+  z-index: 1;
+}
+@keyframes beam-sweep {
+  0%   { top: 0%; opacity: 1; }
+  90%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Ki aura behind the number */
+.scan-aura {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,229,255,0.06) 0%, transparent 70%);
+  animation: ki-pulse 0.5s ease-in-out infinite alternate;
+  z-index: 1;
+}
+@keyframes ki-pulse {
+  from { transform: scale(0.9); opacity: 0.6; }
+  to   { transform: scale(1.2); opacity: 1; }
+}
+
+/* Orbiting rings */
+.scan-orbit {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(0,229,255,0.25);
+  z-index: 2;
+}
+.scan-orbit-1 { width: 320px; height: 320px; animation: orbit-spin 3s linear infinite; }
+.scan-orbit-2 { width: 220px; height: 220px; animation: orbit-spin 2s linear infinite reverse; border-color: rgba(124,77,255,0.3); }
+.scan-orbit-3 { width: 130px; height: 130px; animation: orbit-spin 1.5s linear infinite; border-color: rgba(255,214,0,0.25); }
+.scan-orbit::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: var(--glow);
+}
+.scan-orbit-2::after { background: var(--accent3); box-shadow: 0 0 12px var(--accent3); }
+.scan-orbit-3::after { background: var(--gold); box-shadow: 0 0 12px var(--gold); }
+@keyframes orbit-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.scan-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.scan-label-top {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  letter-spacing: 8px;
+  color: var(--text2);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+.scan-number-wrap {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+#scanNumber {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(64px, 12vw, 110px);
+  font-weight: 900;
+  color: var(--accent);
+  text-shadow: 0 0 30px rgba(0,229,255,0.8), 0 0 70px rgba(0,229,255,0.4), 0 0 120px rgba(0,229,255,0.2);
+  line-height: 1;
+  letter-spacing: -3px;
+  animation: number-shake 0.1s ease-in-out infinite;
+}
+@keyframes number-shake {
+  0%,100% { transform: translate(0,0); }
+  25%      { transform: translate(-1px, 0); }
+  75%      { transform: translate(1px, 0); }
+}
+.scan-over {
+  font-family: 'Orbitron', monospace;
+  font-size: 18px;
+  color: var(--text2);
+  align-self: flex-end;
+  margin-bottom: 12px;
+}
+.scan-label-bottom {
+  font-family: 'Orbitron', monospace;
+  font-size: 13px;
+  letter-spacing: 5px;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(255,214,0,0.5);
+  animation: glow-pulse 0.8s ease-in-out infinite alternate;
+}
+@keyframes glow-pulse {
+  from { opacity: 0.7; }
+  to   { opacity: 1; }
+}
+
+/* Breaking the scouter effect */
+.scan-crack {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  background: rgba(255,0,0,0.05);
+}
+.scan-crack.show { display: flex; }
+.crack-text {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(20px, 5vw, 36px);
+  font-weight: 900;
+  color: var(--red);
+  text-shadow: 0 0 30px rgba(255,23,68,0.8);
+  letter-spacing: 3px;
+  animation: crack-flash 0.15s ease-in-out infinite;
+}
+@keyframes crack-flash { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+/* =============================================
+   RESULT PAGE
+   ============================================= */
+.result-page {
+  min-height: calc(100vh - 57px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 48px 24px;
+  gap: 0;
+}
+
+/* Certified banner */
+.cert-banner {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, rgba(255,214,0,0.1), rgba(255,214,0,0.05));
+  border: 1px solid rgba(255,214,0,0.4);
+  color: var(--gold);
+  padding: 12px 28px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 28px;
+  text-shadow: 0 0 20px rgba(255,214,0,0.5);
+  animation: banner-glow 2s ease-in-out infinite;
+  letter-spacing: 1px;
+}
+.cert-banner.show { display: flex; }
+@keyframes banner-glow {
+  0%,100% { box-shadow: 0 0 15px rgba(255,214,0,0.2); }
+  50%      { box-shadow: 0 0 35px rgba(255,214,0,0.4); }
+}
+
+/* Main scouter gauge */
+.result-scouter {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin-bottom: 28px;
+}
+/* Outer spinning ring */
+.rs-ring-outer {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  box-shadow: var(--glow), inset 0 0 20px rgba(0,229,255,0.05);
+  animation: spin-slow 8s linear infinite;
+}
+.rs-ring-outer::before, .rs-ring-outer::after {
+  content: '';
+  position: absolute;
+  width: 10px; height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: var(--glow);
+}
+.rs-ring-outer::before { top: -5px; left: 50%; transform: translateX(-50%); }
+.rs-ring-outer::after  { bottom: -5px; left: 50%; transform: translateX(-50%); }
+
+.rs-ring-mid {
+  position: absolute;
+  inset: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,229,255,0.2);
+  animation: spin-slow 5s linear infinite reverse;
+}
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.rs-inner {
+  position: absolute;
+  inset: 26px;
+  background: radial-gradient(circle, var(--bg2) 60%, rgba(0,229,255,0.04) 100%);
+  border-radius: 50%;
+  border: 1px solid rgba(0,229,255,0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.rs-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  color: var(--text2);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+.rs-score {
+  font-family: 'Orbitron', monospace;
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--accent);
+  text-shadow: var(--glow);
+  line-height: 1;
+  letter-spacing: -2px;
+}
+.rs-rank {
+  font-family: 'Orbitron', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.result-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(18px, 3.5vw, 26px);
+  color: var(--accent);
+  letter-spacing: 3px;
+  margin-bottom: 8px;
+  text-align: center;
+  text-shadow: var(--glow);
+}
+.result-subtitle {
+  font-size: 13px;
+  color: var(--text2);
+  text-align: center;
+  margin-bottom: 8px;
+}
+.result-desc {
+  font-size: 14px;
+  color: var(--text);
+  text-align: center;
+  max-width: 520px;
+  line-height: 1.85;
+  margin-bottom: 32px;
+  opacity: 0.85;
+}
+
+/* Category bars panel */
+.cat-panel {
+  width: 100%;
+  max-width: 580px;
+  background: rgba(8,15,30,0.9);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 26px;
+  margin-bottom: 24px;
+}
+.cat-panel-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 3px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cat-panel-title::after { content:''; flex:1; height:1px; background:var(--border); }
+.cat-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.cat-row:last-child { margin-bottom: 0; }
+.cat-name { font-size: 11px; color: var(--text2); min-width: 140px; text-align: right; line-height: 1.3; }
+.cat-track { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.cat-fill  { height: 100%; border-radius: 3px; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
+.cat-val   { font-family: 'Orbitron', monospace; font-size: 11px; min-width: 36px; text-align: right; }
+
+.result-actions {
+  display: flex;
+  gap: 12px;
+  max-width: 480px;
+  width: 100%;
+}
+.btn-secondary {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 13px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.05); }
+
+/* =============================================
+   ADMIN — PASSWORD GATE
+   ============================================= */
+.pw-gate {
+  min-height: calc(100vh - 57px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.pw-card {
+  background: rgba(8,15,30,0.95);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 48px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 0 50px rgba(0,229,255,0.06);
+}
+.pw-icon {
+  font-size: 56px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 0 16px rgba(0,229,255,0.4));
+}
+.pw-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 16px;
+  color: var(--accent);
+  letter-spacing: 3px;
+  margin-bottom: 8px;
+}
+.pw-sub { font-size: 13px; color: var(--text2); margin-bottom: 28px; }
+.pw-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 18px;
+  text-align: center;
+  letter-spacing: 6px;
+  margin-bottom: 16px;
+  outline: none;
+  font-family: 'Orbitron', monospace;
+  transition: all 0.2s;
+}
+.pw-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(0,229,255,0.12); }
+.pw-error { color: var(--accent2); font-size: 12px; margin-top: 10px; min-height: 18px; }
+
+/* =============================================
+   ADMIN DASHBOARD
+   ============================================= */
+.admin-wrap { max-width: 1140px; margin: 0 auto; padding: 36px 24px; }
+.admin-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+.admin-h-title { font-family: 'Orbitron', monospace; font-size: 20px; color: var(--accent); letter-spacing: 2px; text-shadow: var(--glow); }
+.admin-h-sub   { font-size: 13px; color: var(--text2); margin-top: 4px; }
+.admin-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Tabs */
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text2);
+  padding: 12px 20px;
+  font-size: 13px;
+  transition: all 0.2s;
+  font-family: 'Noto Sans JP', sans-serif;
+  margin-bottom: -1px;
+  letter-spacing: 0.3px;
+}
+.tab-btn:hover  { color: var(--text); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-panel      { display: none; }
+.tab-panel.active { display: block; }
+
+/* Stat cards */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 28px; }
+.stat-c {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.stat-c::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+}
+.stat-c-label { font-size: 11px; color: var(--text2); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+.stat-c-val   { font-family: 'Orbitron', monospace; font-size: 30px; font-weight: 700; color: var(--accent); }
+.stat-c-unit  { font-size: 11px; color: var(--text2); margin-top: 4px; }
+
+/* Data table */
+.tbl-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+.dtbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.dtbl th {
+  text-align: left;
+  padding: 12px 16px;
+  color: var(--text2);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  font-weight: 500;
+}
+.dtbl td { padding: 13px 16px; border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--text); }
+.dtbl tr:last-child td { border-bottom: none; }
+.dtbl tr:hover td { background: rgba(0,229,255,0.025); }
+
+.pill-score {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0,229,255,0.1);
+  border: 1px solid rgba(0,229,255,0.3);
+  color: var(--accent);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  font-weight: 700;
+}
+.rank-tag { display: inline-block; padding: 3px 9px; border-radius: 5px; font-size: 11px; font-weight: 700; }
+.rS { background: rgba(255,214,0,0.12); color: var(--gold); border: 1px solid rgba(255,214,0,0.3); }
+.rA { background: rgba(0,230,118,0.12); color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
+.rB { background: rgba(0,229,255,0.12); color: var(--accent); border: 1px solid rgba(0,229,255,0.3); }
+.rC { background: rgba(124,77,255,0.12); color: #b39ddb; border: 1px solid rgba(124,77,255,0.3); }
+.rD { background: rgba(255,107,0,0.12); color: var(--accent2); border: 1px solid rgba(255,107,0,0.3); }
+
+/* Analytics */
+.analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.a-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+.a-card-title { font-family: 'Orbitron', monospace; font-size: 10px; color: var(--accent); letter-spacing: 2px; margin-bottom: 20px; }
+
+/* Question cards */
+.q-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 14px; }
+.q-card-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.q-num { font-family: 'Orbitron', monospace; font-size: 10px; color: var(--accent); letter-spacing: 2px; }
+.q-cat-badge { font-size: 10px; padding: 3px 10px; border-radius: 20px; background: rgba(124,77,255,0.12); color: #b39ddb; border: 1px solid rgba(124,77,255,0.25); }
+.q-text { font-size: 14px; color: var(--text); line-height: 1.65; margin-bottom: 14px; }
+.q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.q-opt { font-size: 12px; color: var(--text2); padding: 7px 10px; background: var(--bg3); border-radius: 7px; display: flex; gap: 7px; line-height: 1.4; }
+.q-opt.best { color: var(--green); background: rgba(0,230,118,0.07); }
+.q-opt-k { font-family: 'Orbitron', monospace; font-size: 10px; color: var(--accent); min-width: 14px; flex-shrink: 0; }
+.q-opt.best .q-opt-k { color: var(--green); }
+.q-actions { display: flex; gap: 8px; margin-top: 12px; }
+.btn-sm {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+.btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+.btn-sm.danger:hover { border-color: var(--red); color: var(--red); }
+
+/* Settings */
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.settings-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+.settings-title { font-family: 'Orbitron', monospace; font-size: 10px; color: var(--accent); letter-spacing: 2px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+.settings-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* Utility buttons */
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 9px 18px;
+  border-radius: 7px;
+  font-size: 13px;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,255,0.05); }
+.btn-outline.green:hover { border-color: var(--green); color: var(--green); background: rgba(0,230,118,0.05); }
+
+/* GAS status indicator */
+.gas-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text2);
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+.gas-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text2); }
+.gas-dot.connected { background: var(--green); box-shadow: 0 0 8px var(--green); animation: blink 1.5s infinite; }
+
+/* Alert message */
+.alert { padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
+.alert.show { display: block; }
+.alert.success { background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.3); color: var(--green); }
+.alert.error   { background: rgba(255,23,68,0.1);  border: 1px solid rgba(255,23,68,0.3);  color: var(--red); }
+.alert.info    { background: rgba(0,229,255,0.1);  border: 1px solid rgba(0,229,255,0.25); color: var(--accent); }
+
+/* Schema code block */
+.code-block {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  line-height: 2;
+  margin-top: 12px;
+}
+.code-comment { color: var(--text2); font-family: 'Noto Sans JP', sans-serif; font-size: 11px; }
+
+/* Loading spinner */
+.spinner {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(0,229,255,0.2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Responsive */
+@media (max-width: 680px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .analytics-grid { grid-template-columns: 1fr; }
+  .settings-grid  { grid-template-columns: 1fr; }
+  .q-opts { grid-template-columns: 1fr; }
+  .cat-name { min-width: 80px; font-size: 10px; }
+  .result-actions { flex-direction: column; }
+  .quiz-box { padding: 24px 18px; }
+  .tabs { overflow-x: auto; }
+  .tab-btn { padding: 12px 14px; font-size: 12px; white-space: nowrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">📡</div>
+    <span class="logo-dx">DX</span><span class="logo-sc">スカウター</span>
+  </div>
+  <nav class="nav-group">
+    <button class="nav-btn active" id="navUser"  onclick="showPage('user')">診断を受ける</button>
+    <button class="nav-btn"        id="navAdmin" onclick="goAdmin()">管理者</button>
+  </nav>
+</header>
+
+<!-- =============================================
+     SCAN OVERLAY
+     ============================================= -->
+<div id="scanOverlay">
+  <div class="scan-beam"></div>
+  <div class="scan-aura"></div>
+  <div class="scan-orbit scan-orbit-1"></div>
+  <div class="scan-orbit scan-orbit-2"></div>
+  <div class="scan-orbit scan-orbit-3"></div>
+  <div class="scan-content">
+    <div class="scan-label-top">SCANNING POWER LEVEL</div>
+    <div class="scan-number-wrap">
+      <span id="scanNumber">0</span>
+      <span class="scan-over"></span>
+    </div>
+    <div class="scan-label-bottom">DX BATTLE POWER</div>
+  </div>
+  <!-- Break effect for extremely high score -->
+  <div class="scan-crack" id="scanCrack">
+    <div class="crack-text">！！ SCOUTER OVERLOAD ！！</div>
+    <div style="font-family:'Orbitron',monospace;font-size:14px;color:var(--text2);letter-spacing:3px;">計測不能レベルを検知</div>
+  </div>
+</div>
+
+<!-- =============================================
+     USER PAGE
+     ============================================= -->
+<div class="page active" id="page-user">
+
+  <!-- === START SCREEN === -->
+  <div id="scr-start">
+    <section class="hero">
+      <div class="aura-ring"></div>
+      <div class="aura-ring"></div>
+      <div class="aura-ring"></div>
+      <div class="scouter-hero-icon">🔭</div>
+      <div class="hero-badge">経済産業省 デジタルガバナンス・コード3.0 準拠</div>
+      <h1>
+        <span class="h1-dx">DXスカウター</span>
+        <span class="h1-sub">企業DX戦闘力診断システム</span>
+      </h1>
+      <p class="hero-tagline">YOUR POWER LEVEL IS OVER 9000?</p>
+      <p class="hero-desc">
+        デジタルガバナンス・コード3.0の5カテゴリ・全20問で<br>
+        貴社のDX推進度を「戦闘力」として数値化します。<br>
+        所要時間：約5分
+      </p>
+
+      <div class="form-card">
+        <div class="form-section-title">REGISTRATION</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">氏名 *</label>
+            <input class="form-input" id="f-name" type="text" placeholder="山田 太郎">
+          </div>
+          <div class="form-group">
+            <label class="form-label">会社名 *</label>
+            <input class="form-input" id="f-company" type="text" placeholder="株式会社◯◯">
+          </div>
+          <div class="form-group">
+            <label class="form-label">部署名</label>
+            <input class="form-input" id="f-dept" type="text" placeholder="DX推進部">
+          </div>
+          <div class="form-group">
+            <label class="form-label">メールアドレス *</label>
+            <input class="form-input" id="f-email" type="email" placeholder="taro@example.com">
+          </div>
+          <div class="form-group full">
+            <label class="form-label">業種 *</label>
+            <select class="form-select" id="f-industry">
+              <option value="">選択してください</option>
+              <option>製造業</option><option>情報通信業</option><option>金融・保険業</option>
+              <option>流通・小売業</option><option>建設・不動産業</option><option>医療・福祉</option>
+              <option>教育・学術</option><option>サービス業</option><option>公共・行政</option><option>その他</option>
+            </select>
+          </div>
+        </div>
+        <div id="startAlert" class="alert error"></div>
+        <button class="btn-primary" id="startBtn" onclick="startQuiz()">▶ 戦闘力を計測する</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- === QUIZ SCREEN === -->
+  <div id="scr-quiz" style="display:none;">
+    <div class="quiz-wrapper">
+      <div class="quiz-box">
+        <div class="quiz-topbar">
+          <span class="quiz-cat-tag" id="qCat">カテゴリ</span>
+          <span class="quiz-counter" id="qCount">1 / 20</span>
+        </div>
+        <div class="quiz-progress">
+          <div class="quiz-progress-fill" id="qBar" style="width:5%"></div>
+        </div>
+        <div class="quiz-question" id="qText">問題文が入ります</div>
+        <div class="options-list" id="qOpts"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- === RESULT SCREEN === -->
+  <div id="scr-result" style="display:none;">
+    <div class="result-page">
+      <div class="cert-banner" id="certBanner">
+        ★ DX認定制度 申請対象レベル達成
+      </div>
+      <div class="result-scouter">
+        <div class="rs-ring-outer"></div>
+        <div class="rs-ring-mid"></div>
+        <div class="rs-inner">
+          <div class="rs-label">DX POWER</div>
+          <div class="rs-score" id="rsScore">0</div>
+          <div class="rs-rank"  id="rsRank" >---</div>
+        </div>
+      </div>
+      <div class="result-title"   id="rTitle">計測完了</div>
+      <div class="result-subtitle" id="rSub">---</div>
+      <div class="result-desc"    id="rDesc"></div>
+      <div class="cat-panel">
+        <div class="cat-panel-title">CATEGORY BREAKDOWN</div>
+        <div id="catBars"></div>
+      </div>
+      <div class="result-actions">
+        <button class="btn-secondary" id="exportPdfBtn" onclick="exportPDF()">📄 結果をエクスポート（PDF）</button>
+        <button class="btn-secondary" onclick="closeApp()">✕ 終了</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =============================================
+     ADMIN PAGE
+     ============================================= -->
+<div class="page" id="page-admin">
+
+  <!-- Password gate -->
+  <div class="pw-gate" id="scr-pw">
+    <div class="pw-card">
+      <div class="pw-icon">🔐</div>
+      <div class="pw-title">ADMIN ACCESS</div>
+      <div class="pw-sub">管理者パスワードを入力してください</div>
+      <input class="pw-input" type="password" id="pwInput" placeholder="••••••" onkeydown="if(event.key==='Enter')checkPw()">
+      <button class="btn-primary" onclick="checkPw()">ログイン</button>
+      <div class="pw-error" id="pwErr"></div>
+    </div>
+  </div>
+
+  <!-- Admin dashboard -->
+  <div id="scr-admin" style="display:none;">
+    <div class="admin-wrap">
+      <div class="admin-header">
+        <div>
+          <div class="admin-h-title">ADMIN DASHBOARD</div>
+          <div class="admin-h-sub">DXスカウター 管理者パネル</div>
+        </div>
+        <div class="admin-actions">
+          <div class="gas-status" id="gasStatus">
+            <div class="gas-dot" id="gasDot"></div>
+            <span id="gasStatusText">GAS 未連携</span>
+          </div>
+          <button class="btn-outline" onclick="syncFromGAS()">🔄 データ同期</button>
+          <button class="btn-outline" onclick="exportCSV()">📥 CSV出力</button>
+          <button class="btn-outline" style="color:var(--accent2);border-color:rgba(255,107,0,0.3);" onclick="adminLogout()">ログアウト</button>
+        </div>
+      </div>
+
+      <div id="adminAlert" class="alert"></div>
+
+      <nav class="tabs">
+        <button class="tab-btn active" onclick="switchTab('results')">📊 診断結果</button>
+        <button class="tab-btn" onclick="switchTab('analytics')">📈 分析</button>
+        <button class="tab-btn" onclick="switchTab('questions')">❓ 問題管理</button>
+        <button class="tab-btn" onclick="switchTab('settings')">⚙ 設定</button>
+      </nav>
+
+      <!-- TAB: Results -->
+      <div class="tab-panel active" id="tp-results">
+        <div class="stats-grid" id="statsGrid"></div>
+        <div class="tbl-wrap">
+          <table class="dtbl">
+            <thead>
+              <tr>
+                <th>日時</th><th>氏名</th><th>会社名</th><th>部署</th>
+                <th>業種</th><th>戦闘力</th><th>ランク</th>
+              </tr>
+            </thead>
+            <tbody id="tblBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB: Analytics -->
+      <div class="tab-panel" id="tp-analytics">
+        <div class="analytics-grid" id="analyticsGrid"></div>
+      </div>
+
+      <!-- TAB: Questions -->
+      <div class="tab-panel" id="tp-questions">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <div style="font-size:13px;color:var(--text2);">
+            現在 <strong style="color:var(--accent);font-family:'Orbitron',monospace;" id="qTotal">20</strong> 問
+            <span style="font-size:11px;margin-left:8px;">(スプレッドシートから動的読み込み対応)</span>
+          </div>
+          <button class="btn-outline green" onclick="openAddQuestion()">＋ 問題追加</button>
+        </div>
+        <div id="qPanel"></div>
+      </div>
+
+      <!-- TAB: Settings -->
+      <div class="tab-panel" id="tp-settings">
+        <div class="settings-grid">
+          <div class="settings-card">
+            <div class="settings-title">GAS 連携設定</div>
+            <div class="form-group" style="margin-bottom:16px;">
+              <label class="form-label">WebアプリURL</label>
+              <input class="form-input" id="gasUrlInput" type="url" placeholder="https://script.google.com/macros/s/...">
+            </div>
+            <div class="form-group" style="margin-bottom:20px;">
+              <label class="form-label">接続テスト</label>
+              <button class="btn-outline" style="width:100%;" onclick="testGAS()">🔌 接続確認</button>
+            </div>
+            <button class="btn-primary" onclick="saveGasUrl()">GAS URLを保存</button>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-title">管理者設定</div>
+            <div class="form-group" style="margin-bottom:16px;">
+              <label class="form-label">現在のパスワード</label>
+              <input class="form-input" id="curPw" type="password" placeholder="現在のパスワード">
+            </div>
+            <div class="form-group" style="margin-bottom:16px;">
+              <label class="form-label">新しいパスワード</label>
+              <input class="form-input" id="newPw" type="password" placeholder="新しいパスワード（6文字以上）">
+            </div>
+            <button class="btn-primary" onclick="changePw()">パスワード変更</button>
+          </div>
+
+          <div class="settings-card" style="grid-column:1/-1;">
+            <div class="settings-title">スプレッドシート構成</div>
+            <p style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:12px;">
+              以下のシート構成で Google スプレッドシートを作成し、GASをデプロイしてください。
+            </p>
+            <div class="code-block">
+              <div class="code-comment">📋 シート名：Results（回答データ保存）</div>
+              タイムスタンプ ｜ 氏名 ｜ 会社名 ｜ 部署 ｜ メール ｜ 業種<br>
+              ｜ 合計スコア ｜ 戦闘力 ｜ ランク ｜ ランク称号<br>
+              ｜ Cat1スコア ｜ Cat2スコア ｜ Cat3スコア ｜ Cat4スコア ｜ Cat5スコア<br>
+              <br>
+              <div class="code-comment">📋 シート名：Questions（問題マスタ）</div>
+              ID ｜ カテゴリ ｜ 問題文 ｜ 選択肢A ｜ 選択肢B ｜ 選択肢C ｜ 選択肢D<br>
+              ｜ スコアA ｜ スコアB ｜ スコアC ｜ スコアD ｜ 重み係数
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =============================================
+     JAVASCRIPT
+     ============================================= -->
+<script>
+'use strict';
+/* -----------------------------------------------
+   MASTER DATA
+   ----------------------------------------------- */
+const DEFAULT_QUESTIONS = [
+  {id:1,  cat:"① 経営ビジョン・ビジネスモデル", text:"デジタル技術による社会・競争環境の変化を踏まえた経営ビジョンおよびビジネスモデルの方向性を策定・公表していますか？", opts:["策定・公表済みで定期的に見直している","策定済みだが公表はしていない","現在策定中である","まだ策定していない"], scores:[5,3,1,0], weight:1.0},
+  {id:2,  cat:"① 経営ビジョン・ビジネスモデル", text:"デジタル化に対応した新しいビジネスモデルの変革（新サービス・新事業創出等）に取り組んでいますか？", opts:["新しいビジネスモデルを実現・収益化している","試験的な取り組み（PoC）を実施している","検討・計画中である","特に取り組んでいない"], scores:[5,3,1,0], weight:1.0},
+  {id:3,  cat:"① 経営ビジョン・ビジネスモデル", text:"経営者がDXの重要性について社内外へメッセージを発信していますか？", opts:["経営者自ら率先して継続的に発信している","年に数回、公式な場で発信している","担当部門が代わりに発信している","特に発信していない"], scores:[5,3,1,0], weight:1.0},
+  {id:4,  cat:"① 経営ビジョン・ビジネスモデル", text:"DX推進により実現したい「将来の姿」を、具体的なシナリオ・ロードマップとして描いていますか？", opts:["3〜5年の具体的なロードマップを策定・共有している","定性的なビジョンはあるが具体的計画はない","漠然としたイメージはあるが文書化されていない","将来の姿を描けていない"], scores:[5,3,1,0], weight:1.0},
+  {id:5,  cat:"② DX戦略の策定", text:"DX推進に必要なデジタル人材の育成・確保に関する具体的な計画（数値目標を含む）を策定していますか？", opts:["数値目標を含む具体的な計画を策定・実行中","定性的な方針はあるが数値目標はない","課題は認識しているが計画は未策定","特に取り組んでいない"], scores:[5,3,1,0], weight:1.2},
+  {id:6,  cat:"② DX戦略の策定", text:"既存ITシステムのレガシー化（老朽化・ブラックボックス化）の課題を把握し、対策を講じていますか？", opts:["全社的に課題を把握し刷新計画を実行中","一部システムについて課題把握・対策中","課題は認識しているが具体的対策未実施","現状把握できていない"], scores:[5,3,1,0], weight:1.2},
+  {id:7,  cat:"② DX戦略の策定", text:"DX推進に向けた全社横断的な組織体制（CDO設置・専任部門等）を構築していますか？", opts:["CDOまたは専任部門を設置済み","兼任ながら推進リーダーを任命している","特定のプロジェクト単位で対応している","組織体制は整備されていない"], scores:[5,3,1,0], weight:1.0},
+  {id:8,  cat:"② DX戦略の策定", text:"DXの推進に必要なIT投資の優先順位付けと予算配分を戦略的に行っていますか？", opts:["DX戦略と連動した予算計画を策定・実行している","一定の予算を確保しているが戦略との連動は弱い","要望ベースで予算申請している","DX専用予算は確保されていない"], scores:[5,3,1,0], weight:1.0},
+  {id:9,  cat:"③ DX戦略の推進", text:"データの収集・蓄積・活用（データドリブン経営）に取り組んでいますか？", opts:["データ基盤を整備し意思決定に活用している","一部業務でデータ活用を実践している","データ収集は始めているが活用できていない","データ活用にまだ着手していない"], scores:[5,3,1,0], weight:1.2},
+  {id:10, cat:"③ DX戦略の推進", text:"業務プロセスのデジタル化（RPA・AI・クラウド活用等）はどの程度進んでいますか？", opts:["主要業務の大部分がデジタル化・自動化されている","一部の業務でデジタル化・自動化を実施","実証実験（PoC）段階","まだ着手していない"], scores:[5,3,1,0], weight:1.0},
+  {id:11, cat:"③ DX戦略の推進", text:"デジタル技術を活用した顧客体験（CX）の向上に取り組んでいますか？", opts:["顧客接点のデジタル化で顧客満足度が向上している","顧客向けデジタルサービスを提供中","改善計画はあるがまだ実装できていない","特に取り組んでいない"], scores:[5,3,1,0], weight:1.0},
+  {id:12, cat:"③ DX戦略の推進", text:"社員のデジタルリテラシー向上のための教育・研修プログラムを実施していますか？", opts:["全社員向けに体系的なプログラムを実施中","希望者向けの研修を実施している","研修計画はあるが実施できていない","特に取り組んでいない"], scores:[5,3,1,0], weight:1.0},
+  {id:13, cat:"③ DX戦略の推進", text:"外部パートナー（スタートアップ・IT企業等）との協業・オープンイノベーションに取り組んでいますか？", opts:["複数のパートナーと継続的に協業している","特定プロジェクトで外部連携を実施","検討中または模索中","社内のみで対応している"], scores:[5,3,1,0], weight:0.8},
+  {id:14, cat:"④ 成果指標の設定・見直し", text:"DX推進の効果を測定するKPI（重要業績評価指標）を設定し、定期的にモニタリングしていますか？", opts:["明確なKPIを設定し定期的に進捗をレビューしている","KPIは設定しているがモニタリングが不定期","定性的な目標はあるがKPI化できていない","KPI・目標を設定していない"], scores:[5,3,1,0], weight:1.2},
+  {id:15, cat:"④ 成果指標の設定・見直し", text:"DX戦略の実行状況を定期的に評価し、環境変化に応じて戦略を見直していますか？", opts:["PDCAを回し四半期または半期ごとに見直している","年1回の見直しを実施している","問題が発生した際のみ見直す","戦略の見直しは実施していない"], scores:[5,3,1,0], weight:1.0},
+  {id:16, cat:"④ 成果指標の設定・見直し", text:"DX推進の成果（売上向上・コスト削減・業務効率化等）を定量的に把握していますか？", opts:["成果を数値で把握・分析し次の施策に活かしている","一部の施策について成果を数値で把握","体感的には効果があるが定量化できていない","成果の把握ができていない"], scores:[5,3,1,0], weight:1.0},
+  {id:17, cat:"⑤ ステークホルダーとの対話", text:"DX推進に関する取り組みや進捗を投資家・顧客・パートナー等へ積極的に情報開示していますか？", opts:["統合報告書・IR資料等で詳細に開示している","ウェブサイト等で一定の情報を公開している","問い合わせがあれば回答する程度","特に開示していない"], scores:[5,3,1,0], weight:0.8},
+  {id:18, cat:"⑤ ステークホルダーとの対話", text:"サイバーセキュリティへの対策方針を策定し、組織的に対応する体制を整えていますか？", opts:["方針を策定・公表しCSIRT等の専門体制も整備済み","方針を策定しているが体制整備は進行中","基本的な対策のみ実施（ウイルス対策等）","セキュリティ対策が不十分"], scores:[5,3,1,0], weight:1.2},
+  {id:19, cat:"⑤ ステークホルダーとの対話", text:"サプライチェーンやエコシステム全体でのDX・デジタル連携（EDI・API連携等）に取り組んでいますか？", opts:["取引先・パートナーとのデジタル連携を実現・推進中","一部の取引先とデジタル連携を実施","検討・準備中","各社個別対応のみ"], scores:[5,3,1,0], weight:0.8},
+  {id:20, cat:"⑤ ステークホルダーとの対話", text:"社会課題（SDGs・カーボンニュートラル等）へのデジタル技術を活用した対応を進めていますか？", opts:["具体的な取り組みを実施し成果を開示している","取り組みを開始・推進中","検討・計画中","特に取り組んでいない"], scores:[5,3,1,0], weight:0.8},
+];
+const CATS = ["① 経営ビジョン・ビジネスモデル","② DX戦略の策定","③ DX戦略の推進","④ 成果指標の設定・見直し","⑤ ステークホルダーとの対話"];
+const CAT_COLORS = ["#00e5ff","#00e676","#7c4dff","#ffd600","#ff6b00"];
+const CAT_SHORT   = ["経営ビジョン","DX戦略策定","DX戦略推進","成果指標","ステークホルダー"];
+const RANKS = [
+  {min:90, rank:"超サイヤ人",  label:"DX超戦士",    certified:true,  color:"#ffd600", desc:"DX認定基準を大幅に上回るレベルです。デジタルガバナンス・コード3.0の全項目で最高水準の取り組みを実践しており、業界のDXリーダーとして他社をリードする存在です。DX認定はもちろん、さらに上位のDX銘柄選定を目指してください。"},
+  {min:75, rank:"界王拳×10", label:"DX戦士",       certified:true,  color:"#00e676", desc:"DX認定基準に相当するレベルに到達しています。デジタル戦略・体制・実行力がバランスよく整備されており、DX認定制度への申請を強くお勧めします。スコア90%以上を目指してさらなる進化を。"},
+  {min:55, rank:"戦士",        label:"DX候補生",     certified:false, color:"#00e5ff", desc:"DX推進に向けた基盤は整いつつあります。経営ビジョンや推進体制を強化し、成果指標の設定と継続的な改善サイクルを回すことで、認定レベルへの到達が見えてきます。"},
+  {min:35, rank:"修行中",      label:"DX訓練生",     certified:false, color:"#7c4dff", desc:"DX推進の取り組みは始まっていますが、全社的な戦略策定と体制整備が課題です。まずは経営ビジョンの明文化と推進専任組織の立ち上げから始めることをお勧めします。"},
+  {min:0,  rank:"一般人",      label:"DX未到達",     certified:false, color:"#ff6b00", desc:"DX推進はこれからです。「2025年の崖」問題を踏まえ、まずは現状のITシステム課題の把握と、DX推進の方向性検討から始めることをお勧めします。経産省のDX推進ガイドラインも参考にしてください。"},
+];
+
+/* -----------------------------------------------
+   STATE
+   ----------------------------------------------- */
+let questions      = [...DEFAULT_QUESTIONS];
+let currentQ       = 0;
+let answers        = [];
+let userInfo       = {};
+let results        = JSON.parse(localStorage.getItem('dxResults') || '[]');
+let gasUrl         = localStorage.getItem('gasUrl') || '';
+let lastResult     = null; // 最後の診断結果（PDF生成用）
+let adminPassword  = localStorage.getItem('adminPw') || 'admin123';
+let isAdminLogged  = false;
+
+/* -----------------------------------------------
+   NAV
+   ----------------------------------------------- */
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  document.getElementById('navUser').classList.toggle('active', p === 'user');
+  document.getElementById('navAdmin').classList.toggle('active', p === 'admin');
+}
+function goAdmin() {
+  showPage('admin');
+  if (isAdminLogged) {
+    document.getElementById('scr-pw').style.display = 'none';
+    document.getElementById('scr-admin').style.display = '';
+  } else {
+    document.getElementById('scr-pw').style.display = '';
+    document.getElementById('scr-admin').style.display = 'none';
+  }
+}
+
+/* -----------------------------------------------
+   QUIZ – START
+   ----------------------------------------------- */
+async function startQuiz() {
+  const name     = document.getElementById('f-name').value.trim();
+  const company  = document.getElementById('f-company').value.trim();
+  const email    = document.getElementById('f-email').value.trim();
+  const industry = document.getElementById('f-industry').value;
+  const alert_el = document.getElementById('startAlert');
+  const startBtn = document.getElementById('startBtn');
+
+  if (!name || !company || !email || !industry) {
+    alert_el.textContent = '＊ 必須項目をすべて入力してください';
+    alert_el.classList.add('show');
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert_el.textContent = '＊ 有効なメールアドレスを入力してください';
+    alert_el.classList.add('show');
+    return;
+  }
+  alert_el.classList.remove('show');
+
+  // GASから問題を取得（失敗時はデフォルト問題にフォールバック）
+  startBtn.disabled = true;
+  startBtn.innerHTML = '<span class="spinner"></span> 問題を読み込み中...';
+  questions = [...DEFAULT_QUESTIONS]; // まずデフォルトをセット
+  await loadQuestionsFromGAS();       // GAS成功時は上書き
+  startBtn.disabled = false;
+  startBtn.innerHTML = '▶ 戦闘力を計測する';
+
+  userInfo = {
+    name, company,
+    dept:     document.getElementById('f-dept').value.trim(),
+    email, industry,
+    date: new Date().toLocaleString('ja-JP'),
+  };
+  currentQ = 0;
+  answers  = [];
+  document.getElementById('scr-start').style.display = 'none';
+  document.getElementById('scr-quiz').style.display  = '';
+  renderQ();
+}
+
+/* -----------------------------------------------
+   QUIZ – RENDER QUESTION（選択肢をシャッフル）
+   ----------------------------------------------- */
+
+// 現在の問題のシャッフル済み選択肢を保持
+let shuffledOpts = []; // [{ text, score }, ...]
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function renderQ() {
+  const q = questions[currentQ];
+  document.getElementById('qCat').textContent   = q.cat;
+  document.getElementById('qCount').textContent = `${currentQ + 1} / ${questions.length}`;
+  document.getElementById('qBar').style.width   = `${((currentQ + 1) / questions.length) * 100}%`;
+  document.getElementById('qText').textContent  = q.text;
+
+  // 選択肢とスコアをペアにしてシャッフル
+  const paired = q.opts.map((text, i) => ({ text, score: q.scores[i] }));
+  shuffledOpts = shuffleArray(paired);
+
+  const keys = ['A', 'B', 'C', 'D'];
+  document.getElementById('qOpts').innerHTML = shuffledOpts.map((o, i) =>
+    `<button class="opt-btn" onclick="pickOpt(${i})">
+       <span class="opt-key">${keys[i]}</span>
+       <span>${o.text}</span>
+     </button>`
+  ).join('');
+}
+
+/* -----------------------------------------------
+   QUIZ – PICK OPTION
+   answers にはインデックスではなくスコア値を直接保存する
+   ----------------------------------------------- */
+function pickOpt(idx) {
+  document.querySelectorAll('.opt-btn').forEach((b, i) => {
+    b.classList.remove('selected');
+    if (i === idx) b.classList.add('correct');
+    else           b.classList.add('disabled');
+  });
+  // シャッフル後の選択肢からスコアを取得して保存
+  answers.push(shuffledOpts[idx].score);
+  setTimeout(() => {
+    currentQ++;
+    if (currentQ < questions.length) renderQ();
+    else buildResult();
+  }, 550);
+}
+
+/* -----------------------------------------------
+   RESULT – BUILD
+   ----------------------------------------------- */
+function buildResult() {
+  document.getElementById('scr-quiz').style.display = 'none';
+
+  // Compute score
+  let totalScore = 0, totalMax = 0;
+  const catScore = {}, catMax = {};
+  CATS.forEach(c => { catScore[c] = 0; catMax[c] = 0; });
+  questions.forEach((q, i) => {
+    // answers[i] はシャッフル後に選ばれた選択肢のスコア値そのもの
+    const pts = (answers[i] ?? 0) * q.weight;
+    const max = q.scores[0] * q.weight; // 最高スコア（常にscores[0]=5）
+    totalScore += pts;
+    totalMax   += max;
+    catScore[q.cat] = (catScore[q.cat] || 0) + pts;
+    catMax[q.cat]   = (catMax[q.cat]  || 0) + max;
+  });
+  const pct         = Math.round((totalScore / totalMax) * 100);
+  const battlePower = Math.round(pct * 9999 / 100);
+  const rankInfo    = RANKS.find(r => pct >= r.min);
+  const catPct      = {};
+  CATS.forEach(c => { catPct[c] = catMax[c] > 0 ? Math.round((catScore[c] / catMax[c]) * 100) : 0; });
+
+  // Show scan overlay → then show result
+  showScan(battlePower, pct >= 90, () => {
+    document.getElementById('scr-result').style.display = '';
+    // Cert banner
+    const cb = document.getElementById('certBanner');
+    if (rankInfo.certified) cb.classList.add('show'); else cb.classList.remove('show');
+    // Score counter
+    const scoreEl = document.getElementById('rsScore');
+    let n = 0;
+    const t = setInterval(() => {
+      n = Math.min(n + Math.ceil(battlePower / 60), battlePower);
+      scoreEl.textContent = n.toLocaleString();
+      if (n >= battlePower) clearInterval(t);
+    }, 20);
+    document.getElementById('rsRank').textContent  = rankInfo.rank;
+    document.getElementById('rsRank').style.color  = rankInfo.color;
+    document.getElementById('rTitle').textContent  = rankInfo.label;
+    document.getElementById('rSub').textContent    = `スコア：${pct}% | 戦闘力：${battlePower.toLocaleString()}`;
+    document.getElementById('rDesc').textContent   = rankInfo.desc;
+    // Cat bars
+    document.getElementById('catBars').innerHTML = CATS.map((c, i) =>
+      `<div class="cat-row">
+         <span class="cat-name">${CAT_SHORT[i]}</span>
+         <div class="cat-track"><div class="cat-fill" id="cf${i}" style="width:0%;background:${CAT_COLORS[i]};"></div></div>
+         <span class="cat-val" style="color:${CAT_COLORS[i]};">${catPct[c]}%</span>
+       </div>`
+    ).join('');
+    setTimeout(() => CATS.forEach((c,i) => { document.getElementById('cf'+i).style.width = catPct[c] + '%'; }), 100);
+    // Persist & send
+    const rec = { ...userInfo, pct, battlePower, rank: rankInfo.rank, label: rankInfo.label, certified: rankInfo.certified, catPct };
+    lastResult = { rec, rankInfo, catPct, pct, battlePower }; // PDF用に保持
+    results.unshift(rec);
+    localStorage.setItem('dxResults', JSON.stringify(results.slice(0, 500)));
+    sendToGAS(rec);
+  });
+}
+
+/* -----------------------------------------------
+   SCAN OVERLAY  (Dragon Ball style)
+   ----------------------------------------------- */
+function showScan(target, overload, cb) {
+  const overlay = document.getElementById('scanOverlay');
+  const numEl   = document.getElementById('scanNumber');
+  const crack   = document.getElementById('scanCrack');
+  overlay.classList.add('active');
+  numEl.style.animation = 'number-shake 0.1s ease-in-out infinite';
+  crack.classList.remove('show');
+  let n = 0;
+  const maxDisplay = overload ? 9999 : target;
+  const step = Math.max(1, Math.ceil(maxDisplay / 80));
+  const t = setInterval(() => {
+    n = Math.min(n + step, maxDisplay);
+    numEl.textContent = n.toLocaleString();
+    if (n >= maxDisplay) {
+      clearInterval(t);
+      if (overload) {
+        // Break the scouter
+        setTimeout(() => {
+          numEl.textContent = '∞';
+          numEl.style.animation = 'crack-flash 0.15s ease-in-out infinite';
+          crack.classList.add('show');
+        }, 300);
+        setTimeout(() => {
+          numEl.style.animation = '';
+          overlay.classList.remove('active');
+          crack.classList.remove('show');
+          cb();
+        }, 2000);
+      } else {
+        setTimeout(() => {
+          overlay.classList.remove('active');
+          cb();
+        }, 900);
+      }
+    }
+  }, 18);
+}
+
+function restartQuiz() {
+  document.getElementById('scr-result').style.display = 'none';
+  document.getElementById('certBanner').classList.remove('show');
+  document.getElementById('scr-start').style.display = '';
+}
+
+/* -----------------------------------------------
+   PDF エクスポート（jsPDF使用・A4縦・白ベース）
+   ----------------------------------------------- */
+function closeApp() {
+  window.close();
+  // window.close()がブロックされた場合のフォールバック
+  setTimeout(() => {
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#555;font-size:16px;">診断を終了しました。このタブを閉じてください。</div>';
+  }, 300);
+}
+
+async function exportPDF() {
+  if (!lastResult) { alert('診断結果がありません'); return; }
+
+  const { rec, rankInfo, catPct, pct, battlePower } = lastResult;
+
+  const CAT_FULL = [
+    '① 経営ビジョン・ビジネスモデル',
+    '② DX戦略の策定',
+    '③ DX戦略の推進',
+    '④ 成果指標の設定・見直し',
+    '⑤ ステークホルダーとの対話',
+  ];
+  const CAT_SHORT_PDF = ['経営ビジョン', 'DX戦略策定', 'DX戦略推進', '成果指標', 'ステークホルダー'];
+  const CAT_COLORS_PDF = ['#00e5ff', '#00e676', '#7c4dff', '#ffd600', '#ff6b00'];
+
+  const rankColorMap = {
+    '超サイヤ人': '#ffd600',
+    '界王拳×10':  '#00e676',
+    '戦士':        '#00e5ff',
+    '修行中':      '#9c6bff',
+    '一般人':      '#ff6b00',
+  };
+  const rankColor = rankColorMap[rec.rank] || '#00e5ff';
+
+  // カテゴリバーHTML生成
+  const catBarsHTML = CAT_FULL.map((cat, i) => {
+    const val = catPct[cat] ?? 0;
+    const col = CAT_COLORS_PDF[i];
+    return `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:9px;color:#7a9ab8;min-width:90px;text-align:right;line-height:1.3;">${CAT_SHORT_PDF[i]}</span>
+        <div style="flex:1;height:7px;background:#1a2540;border-radius:4px;overflow:hidden;">
+          <div style="width:${val}%;height:100%;background:${col};border-radius:4px;"></div>
+        </div>
+        <span style="font-size:10px;font-weight:700;color:${col};min-width:34px;text-align:right;">${val}%</span>
+      </div>`;
+  }).join('');
+
+  // 認定バッジHTML
+  const certHTML = rec.certified ? `
+    <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,214,0,0.1);border:1px solid rgba(255,214,0,0.5);color:#ffd600;padding:6px 16px;border-radius:20px;font-size:10px;font-weight:700;margin-bottom:16px;">
+      ★ DX認定制度 申請対象レベル達成
+    </div>` : '';
+
+  // 推奨アクション
+  const actions = pct >= 75 ? [
+    'IPAのDX推進ポータルからDX認定を申請する',
+    '認定後はロゴマークをWebサイト・名刺等で活用する',
+    'さらに上位のDX銘柄選定を目指す',
+  ] : pct >= 55 ? [
+    'スコアの低いカテゴリの取り組みを優先的に強化する',
+    'DX推進専任組織・責任者（CDO等）を設置する',
+    'KPIを設定し、四半期ごとにPDCAを回す',
+  ] : [
+    '経営ビジョンにDXの方向性を明文化する',
+    '現状のITシステム課題を全社で棚卸しする',
+    'DX推進の担当者・予算を確保する',
+  ];
+  const actionsHTML = actions.map((a, i) => `
+    <div style="display:flex;gap:8px;margin-bottom:7px;align-items:flex-start;">
+      <span style="color:#00e5ff;font-size:10px;font-weight:700;min-width:16px;">${i+1}.</span>
+      <span style="color:#c8d8e8;font-size:10px;line-height:1.5;">${a}</span>
+    </div>`).join('');
+
+  // PDF用HTMLを新規ウィンドウで開いてprint
+  const printWin = window.open('', '_blank', 'width=900,height=1200');
+  printWin.document.write(`<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>DX診断レポート_${rec.company}</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #040810;
+    color: #dce8f5;
+    font-family: 'Noto Sans JP', sans-serif;
+    width: 210mm;
+    min-height: 297mm;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    background: #040810;
+    padding: 0;
+    position: relative;
+  }
+
+  /* ヘッダー */
+  .header {
+    background: #080f1e;
+    border-bottom: 2px solid #00e5ff;
+    padding: 14px 20px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .header-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 18px;
+    font-weight: 900;
+    color: #00e5ff;
+    letter-spacing: 3px;
+  }
+  .header-logo span { color: #ffd600; }
+  .header-meta { text-align: right; font-size: 8px; color: #7a9ab8; line-height: 1.8; }
+
+  /* コンテンツ */
+  .content { padding: 14px 20px; }
+
+  /* 受診者情報 */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 16px;
+    background: #080f1e;
+    border: 1px solid rgba(0,229,255,0.18);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+  }
+  .info-row { display: flex; gap: 8px; align-items: baseline; }
+  .info-label { font-size: 8px; color: #7a9ab8; min-width: 36px; letter-spacing: 1px; }
+  .info-val   { font-size: 10px; color: #dce8f5; font-weight: 500; }
+
+  /* スコアメイン */
+  .score-card {
+    background: #080f1e;
+    border: 1px solid rgba(0,229,255,0.18);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .score-circle {
+    width: 90px; height: 90px; flex-shrink: 0;
+    border-radius: 50%;
+    border: 2px solid ${rankColor};
+    background: #0c1426;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    box-shadow: 0 0 16px ${rankColor}44;
+  }
+  .circle-label { font-size: 7px; color: #7a9ab8; letter-spacing: 2px; margin-bottom: 2px; }
+  .circle-score {
+    font-family: 'Orbitron', monospace;
+    font-size: 20px; font-weight: 900;
+    color: ${rankColor};
+    line-height: 1; letter-spacing: -1px;
+  }
+  .circle-rank { font-size: 8px; color: ${rankColor}; margin-top: 3px; font-weight: 700; }
+  .score-right { flex: 1; }
+  .score-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 20px; font-weight: 900;
+    color: ${rankColor};
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+  }
+  .score-pct   { font-size: 11px; color: #dce8f5; margin-bottom: 4px; }
+  .score-sub   { font-size: 9px; color: #7a9ab8; }
+
+  /* カテゴリ */
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px; color: #00e5ff;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(0,229,255,0.2);
+  }
+  .section { margin-bottom: 14px; }
+
+  /* コメント */
+  .comment-box {
+    background: rgba(0,229,255,0.05);
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 9.5px;
+    color: #c8d8e8;
+    line-height: 1.8;
+  }
+
+  /* アクション */
+  .action-box {
+    background: #080f1e;
+    border: 1px solid rgba(0,229,255,0.18);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+
+  /* フッター */
+  .footer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: #080f1e;
+    border-top: 1px solid rgba(0,229,255,0.15);
+    padding: 8px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-text { font-size: 7px; color: #4a6080; line-height: 1.7; }
+  .footer-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 8px; color: #00e5ff;
+    letter-spacing: 2px; opacity: 0.6;
+  }
+
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ヘッダー -->
+  <div class="header">
+    <div class="header-logo">DX<span>スカウター</span></div>
+    <div class="header-meta">
+      企業DX戦闘力診断レポート<br>
+      診断日時：${rec.date}<br>
+      経済産業省 デジタルガバナンス・コード3.0 準拠
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- 受診者情報 -->
+    <div class="info-grid">
+      <div class="info-row"><span class="info-label">氏名</span><span class="info-val">${rec.name}</span></div>
+      <div class="info-row"><span class="info-label">メール</span><span class="info-val">${rec.email}</span></div>
+      <div class="info-row"><span class="info-label">会社名</span><span class="info-val">${rec.company}</span></div>
+      <div class="info-row"><span class="info-label">業種</span><span class="info-val">${rec.industry}</span></div>
+      <div class="info-row"><span class="info-label">部署</span><span class="info-val">${rec.dept || '—'}</span></div>
+    </div>
+
+    <!-- DX認定バッジ -->
+    <div style="text-align:center;">${certHTML}</div>
+
+    <!-- スコアメイン -->
+    <div class="score-card">
+      <div class="score-circle">
+        <div class="circle-label">DX POWER</div>
+        <div class="circle-score">${battlePower.toLocaleString()}</div>
+        <div class="circle-rank">${rec.rank}</div>
+      </div>
+      <div class="score-right">
+        <div class="score-title">${rec.label}</div>
+        <div class="score-pct">総合スコア：${pct}%</div>
+        <div class="score-sub">${pct >= 75 ? '★ DX認定制度 申請対象レベルに達しています' : 'DX認定レベル（75%以上）まであと ' + (75-pct) + '%'}</div>
+      </div>
+    </div>
+
+    <!-- カテゴリ別スコア -->
+    <div class="section">
+      <div class="section-title">CATEGORY BREAKDOWN</div>
+      ${catBarsHTML}
+    </div>
+
+    <!-- 総合コメント -->
+    <div class="section">
+      <div class="section-title">OVERALL ASSESSMENT</div>
+      <div class="comment-box">${rankInfo.desc}</div>
+    </div>
+
+    <!-- 推奨アクション -->
+    <div class="section">
+      <div class="section-title">RECOMMENDED ACTIONS</div>
+      <div class="action-box">${actionsHTML}</div>
+    </div>
+
+  </div>
+
+  <!-- フッター -->
+  <div class="footer">
+    <div class="footer-text">
+      本レポートは経済産業省「デジタルガバナンス・コード3.0」の認定基準に基づく自己診断結果です。<br>
+      DX認定制度の詳細：https://www.meti.go.jp/policy/it_policy/investment/dx-nintei/
+    </div>
+    <div class="footer-logo">DXスカウター</div>
+  </div>
+
+</div>
+<script>
+  // フォント読み込み後に印刷ダイアログを開く
+  document.fonts.ready.then(() => {
+    setTimeout(() => {
+      window.print();
+    }, 400);
+  });
+</script>
+</body>
+</html>`);
+  printWin.document.close();
+}
+
+
+/* -----------------------------------------------
+   GAS API — 共通ヘルパー
+   GASはリダイレクト(302)を返すため fetch の
+   redirect:'follow' が必須。POST も同様。
+   ----------------------------------------------- */
+
+/**
+ * GAS GET リクエスト
+ * @param {string} action
+ * @param {Object} params  追加クエリパラメータ
+ */
+async function gasGet(action, params = {}) {
+  const u = new URL(gasUrl);
+  u.searchParams.set('action', action);
+  Object.entries(params).forEach(([k,v]) => u.searchParams.set(k, v));
+  const res = await fetch(u.toString(), { redirect: 'follow' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+/**
+ * GAS POST リクエスト
+ * GASはPOSTのリダイレクト後にGETになるブラウザ仕様があるため
+ * contentType を text/plain にしてリダイレクトを回避する。
+ * GAS側で e.postData.contents を JSON.parse して受け取る。
+ */
+async function gasPost(action, data) {
+  const body = JSON.stringify({ action, data });
+  const res  = await fetch(gasUrl, {
+    method:   'POST',
+    redirect: 'follow',
+    headers:  { 'Content-Type': 'text/plain;charset=utf-8' },
+    body,
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+/* -----------------------------------------------
+   GAS – 診断結果を保存
+   ----------------------------------------------- */
+async function sendToGAS(data) {
+  if (!gasUrl) {
+    console.log('[GAS] URL未設定 — ローカルのみ保存');
+    return;
+  }
+  try {
+    const json = await gasPost('saveResult', data);
+    if (json.status !== 'ok') throw new Error(json.error || '不明なエラー');
+    console.log('[GAS] 保存成功');
+  } catch (e) {
+    console.warn('[GAS] 保存失敗:', e.message);
+    // ローカルには既に保存済みなので、ユーザーへの影響なし
+  }
+}
+
+/* -----------------------------------------------
+   GAS – 管理者：スプレッドシートから結果を同期
+   ----------------------------------------------- */
+async function syncFromGAS() {
+  if (!gasUrl) { showAdminAlert('GAS URLが設定されていません。設定タブでURLを登録してください。', 'error'); return; }
+  showAdminAlert('<span class="spinner"></span> スプレッドシートからデータを同期中...', 'info');
+  try {
+    const json = await gasGet('getResults');
+    if (!Array.isArray(json.results)) throw new Error(json.error || 'レスポンス形式エラー');
+    results = json.results;
+    localStorage.setItem('dxResults', JSON.stringify(results));
+    loadAdminData();
+    showAdminAlert(`✓ 同期完了 — ${results.length} 件のデータを読み込みました`, 'success');
+  } catch (e) {
+    showAdminAlert('✗ 同期失敗: ' + e.message, 'error');
+  }
+}
+
+/* -----------------------------------------------
+   GAS – クイズ開始時に問題をスプレッドシートから取得
+   Questions シートが空 or GAS未設定なら DEFAULT_QUESTIONS を使用
+   ----------------------------------------------- */
+async function loadQuestionsFromGAS() {
+  if (!gasUrl) return false; // GAS未設定 → デフォルト使用
+  try {
+    const json = await gasGet('getQuestions');
+    if (!Array.isArray(json.questions) || json.questions.length === 0) return false;
+    questions = json.questions;
+    console.log(`[GAS] 問題を ${questions.length} 件読み込みました`);
+    return true;
+  } catch (e) {
+    console.warn('[GAS] 問題取得失敗 — デフォルト問題を使用:', e.message);
+    return false;
+  }
+}
+
+/* -----------------------------------------------
+   GAS – 問題をスプレッドシートに保存
+   ----------------------------------------------- */
+async function saveQuestionToGAS(qData) {
+  if (!gasUrl) return;
+  try {
+    const json = await gasPost('saveQuestion', qData);
+    if (json.status !== 'ok') throw new Error(json.error);
+  } catch (e) {
+    console.warn('[GAS] 問題保存失敗:', e.message);
+    throw e; // 呼び出し元でハンドリング
+  }
+}
+
+/* -----------------------------------------------
+   GAS – 問題をスプレッドシートから削除
+   ----------------------------------------------- */
+async function deleteQuestionFromGAS(id) {
+  if (!gasUrl) return;
+  try {
+    const json = await gasPost('deleteQuestion', { id });
+    if (json.status !== 'ok') throw new Error(json.error);
+  } catch (e) {
+    console.warn('[GAS] 問題削除失敗:', e.message);
+    throw e;
+  }
+}
+
+/* -----------------------------------------------
+   ADMIN – PASSWORD
+   ----------------------------------------------- */
+function checkPw() {
+  const v = document.getElementById('pwInput').value;
+  if (v === adminPassword) {
+    isAdminLogged = true;
+    document.getElementById('scr-pw').style.display    = 'none';
+    document.getElementById('scr-admin').style.display = '';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwErr').textContent = '';
+    loadAdminData();
+    updateGasStatus();
+  } else {
+    document.getElementById('pwErr').textContent = 'パスワードが正しくありません';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+function adminLogout() {
+  isAdminLogged = false;
+  document.getElementById('scr-admin').style.display = 'none';
+  document.getElementById('scr-pw').style.display    = '';
+  showPage('user');
+}
+function changePw() {
+  const cur = document.getElementById('curPw').value;
+  const nw  = document.getElementById('newPw').value;
+  if (cur !== adminPassword) { showAdminAlert('現在のパスワードが正しくありません', 'error'); return; }
+  if (nw.length < 6) { showAdminAlert('新しいパスワードは6文字以上にしてください', 'error'); return; }
+  adminPassword = nw;
+  localStorage.setItem('adminPw', nw);
+  document.getElementById('curPw').value = '';
+  document.getElementById('newPw').value = '';
+  showAdminAlert('パスワードを変更しました', 'success');
+}
+
+/* -----------------------------------------------
+   ADMIN – LOAD DATA
+   ----------------------------------------------- */
+function loadAdminData() {
+  renderStats();
+  renderTable();
+  renderAnalytics();
+  renderQuestions();
+}
+
+function renderStats() {
+  const n    = results.length;
+  const avg  = n ? Math.round(results.reduce((a,r)=>a+r.battlePower,0)/n) : 0;
+  const cert = results.filter(r=>r.pct>=75).length;
+  const avgP = n ? Math.round(results.reduce((a,r)=>a+r.pct,0)/n) : 0;
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-c"><div class="stat-c-label">総受診数</div><div class="stat-c-val">${n}</div><div class="stat-c-unit">名</div></div>
+    <div class="stat-c"><div class="stat-c-label">平均戦闘力</div><div class="stat-c-val">${avg.toLocaleString()}</div></div>
+    <div class="stat-c"><div class="stat-c-label">平均スコア</div><div class="stat-c-val">${avgP}%</div></div>
+    <div class="stat-c"><div class="stat-c-label">認定レベル達成</div><div class="stat-c-val">${cert}</div><div class="stat-c-unit">社 / ${n}社</div></div>
+  `;
+}
+
+function rankClass(pct) {
+  if (pct>=90) return 'rS'; if (pct>=75) return 'rA'; if (pct>=55) return 'rB'; if (pct>=35) return 'rC'; return 'rD';
+}
+function renderTable() {
+  document.getElementById('tblBody').innerHTML = results.length
+    ? results.map(r=>`<tr>
+        <td style="color:var(--text2);font-size:12px;">${r.date}</td>
+        <td>${r.name}</td>
+        <td>${r.company}</td>
+        <td style="color:var(--text2);">${r.dept||'—'}</td>
+        <td style="color:var(--text2);">${r.industry}</td>
+        <td><span class="pill-score">${r.battlePower.toLocaleString()}</span></td>
+        <td><span class="rank-tag ${rankClass(r.pct)}">${r.rank}</span></td>
+      </tr>`).join('')
+    : '<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:40px;">まだ診断結果がありません</td></tr>';
+}
+
+function renderAnalytics() {
+  if (!results.length) { document.getElementById('analyticsGrid').innerHTML='<div style="color:var(--text2);font-size:13px;padding:24px;">データがありません</div>'; return; }
+  // Cat avg
+  const catAvg = CATS.map((c,i)=>({c, i, avg: Math.round(results.reduce((a,r)=>a+(r.catPct?.[c]||0),0)/results.length)}));
+  // Industry avg
+  const indMap = {};
+  results.forEach(r => { if(!indMap[r.industry]) indMap[r.industry]=[]; indMap[r.industry].push(r.battlePower); });
+  const indAvg = Object.entries(indMap).map(([k,v])=>({k, avg:Math.round(v.reduce((a,b)=>a+b,0)/v.length), n:v.length})).sort((a,b)=>b.avg-a.avg);
+  // Rank dist
+  const rankDist = [['超サイヤ人',0],['界王拳×10',0],['戦士',0],['修行中',0],['一般人',0]];
+  results.forEach(r=>{ const rd=rankDist.find(x=>x[0]===r.rank); if(rd) rd[1]++; });
+  document.getElementById('analyticsGrid').innerHTML = `
+    <div class="a-card">
+      <div class="a-card-title">カテゴリ別 平均スコア</div>
+      ${catAvg.map(x=>`<div class="cat-row">
+        <span class="cat-name" style="font-size:10px;">${CAT_SHORT[x.i]}</span>
+        <div class="cat-track"><div class="cat-fill" style="width:${x.avg}%;background:${CAT_COLORS[x.i]};transition:width 1s;"></div></div>
+        <span class="cat-val" style="color:${CAT_COLORS[x.i]};">${x.avg}%</span>
+      </div>`).join('')}
+    </div>
+    <div class="a-card">
+      <div class="a-card-title">業種別 平均戦闘力</div>
+      ${indAvg.map(x=>`<div class="cat-row">
+        <span class="cat-name" style="font-size:10px;">${x.k} (${x.n})</span>
+        <div class="cat-track"><div class="cat-fill" style="width:${x.avg/100}%;background:var(--accent);transition:width 1s;"></div></div>
+        <span class="cat-val" style="color:var(--accent);font-size:10px;">${x.avg.toLocaleString()}</span>
+      </div>`).join('')}
+    </div>
+    <div class="a-card" style="grid-column:1/-1;">
+      <div class="a-card-title">ランク分布</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        ${rankDist.map(([name,cnt])=>{
+          const cls=['rS','rA','rB','rC','rD'][rankDist.indexOf(rankDist.find(x=>x[0]===name))];
+          return `<div style="text-align:center;padding:16px 24px;background:var(--bg3);border-radius:10px;border:1px solid var(--border);">
+            <div class="rank-tag ${cls}" style="font-size:13px;margin-bottom:8px;">${name}</div>
+            <div style="font-family:'Orbitron',monospace;font-size:24px;font-weight:700;color:var(--accent);">${cnt}</div>
+            <div style="font-size:11px;color:var(--text2);">社</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderQuestions() {
+  document.getElementById('qTotal').textContent = questions.length;
+  const keys = ['A','B','C','D'];
+  document.getElementById('qPanel').innerHTML = questions.map((q,i)=>`
+    <div class="q-card">
+      <div class="q-card-head">
+        <span class="q-num">Q${String(q.id).padStart(2,'0')}</span>
+        <span class="q-cat-badge">${q.cat}</span>
+      </div>
+      <div class="q-text">${q.text}</div>
+      <div class="q-opts">
+        ${q.opts.map((o,j)=>`<div class="q-opt ${j===0?'best':''}">
+          <span class="q-opt-k">${keys[j]}</span><span>${o}</span>
+        </div>`).join('')}
+      </div>
+      <div class="q-actions">
+        <button class="btn-sm" onclick="editQuestion(${i})">✏ 編集</button>
+        <button class="btn-sm danger" onclick="deleteQuestion(${i})">🗑 削除</button>
+        <span style="font-size:11px;color:var(--text2);margin-left:auto;">重み：${q.weight}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function openAddQuestion() {
+  const cat  = prompt('カテゴリを選択してください:\n' + CATS.map((c,i)=>`${i+1}. ${c}`).join('\n') + '\n\n番号を入力:');
+  if (!cat) return;
+  const catIdx = parseInt(cat) - 1;
+  const catName = (catIdx >= 0 && catIdx < CATS.length) ? CATS[catIdx] : cat;
+
+  const text = prompt('問題文を入力してください：');
+  if (!text) return;
+
+  const opts = [], scs = [];
+  const keys = ['A（最高スコア5 — 最も取り組んでいる）','B（スコア3）','C（スコア1）','D（スコア0 — 未着手）'];
+  for (let i = 0; i < 4; i++) {
+    const o = prompt(`選択肢 ${keys[i]}：`);
+    if (o === null) return;
+    opts.push(o || '（未記入）');
+    scs.push([5,3,1,0][i]);
+  }
+  const wt = parseFloat(prompt('重み係数\n  1.2 = 重要項目\n  1.0 = 通常（デフォルト）\n  0.8 = 軽微\n\n数値を入力:') || '1.0');
+
+  const newQ = {
+    id:     questions.length + 1,
+    cat:    catName,
+    text,
+    opts,
+    scores: scs,
+    weight: isNaN(wt) ? 1.0 : wt,
+  };
+
+  showAdminAlert('<span class="spinner"></span> 問題をスプレッドシートに保存中...', 'info');
+  try {
+    await saveQuestionToGAS(newQ);
+    showAdminAlert('✓ 問題をスプレッドシートに保存しました', 'success');
+  } catch {
+    showAdminAlert('⚠ GAS保存失敗 — ローカルにのみ追加しました', 'error');
+  }
+  questions.push(newQ);
+  renderQuestions();
+}
+
+async function editQuestion(idx) {
+  const q    = questions[idx];
+  const text = prompt('問題文を編集：', q.text);
+  if (!text || text === q.text) return;
+  questions[idx].text = text;
+
+  if (gasUrl) {
+    showAdminAlert('<span class="spinner"></span> スプレッドシートを更新中...', 'info');
+    try {
+      await gasPost('updateQuestion', questions[idx]);
+      showAdminAlert('✓ 問題を更新しました', 'success');
+    } catch {
+      showAdminAlert('⚠ GAS更新失敗 — ローカルのみ更新', 'error');
+    }
+  }
+  renderQuestions();
+}
+
+async function deleteQuestion(idx) {
+  const q = questions[idx];
+  if (!confirm(`Q${q.id} を削除しますか？\n「${q.text.slice(0,30)}...」`)) return;
+
+  if (gasUrl) {
+    showAdminAlert('<span class="spinner"></span> スプレッドシートから削除中...', 'info');
+    try {
+      await deleteQuestionFromGAS(q.id);
+      showAdminAlert('✓ 問題を削除しました', 'success');
+    } catch {
+      showAdminAlert('⚠ GAS削除失敗 — ローカルのみ削除', 'error');
+    }
+  }
+  questions.splice(idx, 1);
+  renderQuestions();
+}
+
+/* -----------------------------------------------
+   ADMIN – CSV EXPORT
+   ----------------------------------------------- */
+function exportCSV() {
+  if (!results.length) { showAdminAlert('エクスポートするデータがありません', 'error'); return; }
+  const hdrs = ['日時','氏名','会社名','部署','メール','業種','戦闘力','スコア%','ランク','称号','認定レベル',
+    ...CAT_SHORT.map(c=>c+'スコア%')];
+  const rows = results.map(r=>[
+    r.date, r.name, r.company, r.dept||'', r.email, r.industry,
+    r.battlePower, r.pct+'%', r.rank, r.label, r.certified?'達成':'未達',
+    ...CATS.map(c=>r.catPct?.[c]!=null ? r.catPct[c]+'%' : '')
+  ]);
+  const csv = [hdrs, ...rows].map(row=>row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+  const a    = Object.assign(document.createElement('a'), {href: URL.createObjectURL(blob), download: `dx-scouter-${new Date().toISOString().slice(0,10)}.csv`});
+  a.click();
+  showAdminAlert('CSVをダウンロードしました', 'success');
+}
+
+/* -----------------------------------------------
+   ADMIN – GAS SETTINGS
+   ----------------------------------------------- */
+function saveGasUrl() {
+  const u = document.getElementById('gasUrlInput').value.trim();
+  if (!u) { showAdminAlert('URLを入力してください', 'error'); return; }
+  gasUrl = u;
+  localStorage.setItem('gasUrl', u);
+  updateGasStatus();
+  showAdminAlert('GAS URLを保存しました', 'success');
+}
+async function testGAS() {
+  const u = document.getElementById('gasUrlInput').value.trim() || gasUrl;
+  if (!u) { showAdminAlert('GAS URLを入力してください', 'error'); return; }
+  showAdminAlert('<span class="spinner"></span> 接続テスト中...', 'info');
+  try {
+    const testUrl = new URL(u);
+    testUrl.searchParams.set('action', 'ping');
+    const res  = await fetch(testUrl.toString(), { redirect: 'follow', signal: AbortSignal.timeout(10000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    if (json.status === 'ok') {
+      showAdminAlert('✓ GAS接続成功 — スプレッドシートに正常に接続できました', 'success');
+    } else {
+      throw new Error(json.error || '不明なレスポンス');
+    }
+  } catch(e) {
+    showAdminAlert('✗ 接続失敗: ' + e.message + '\n（GASのデプロイ設定でアクセスが「全員」になっているか確認してください）', 'error');
+  }
+}
+function updateGasStatus() {
+  const dot  = document.getElementById('gasDot');
+  const text = document.getElementById('gasStatusText');
+  if (gasUrl) {
+    dot.classList.add('connected');
+    text.textContent = 'GAS 連携済み';
+    document.getElementById('gasUrlInput').value = gasUrl;
+  } else {
+    dot.classList.remove('connected');
+    text.textContent = 'GAS 未連携';
+  }
+}
+
+/* -----------------------------------------------
+   ADMIN – TABS + ALERTS
+   ----------------------------------------------- */
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['results','analytics','questions','settings'][i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tp-'+name).classList.add('active');
+}
+function showAdminAlert(msg, type) {
+  const el = document.getElementById('adminAlert');
+  el.innerHTML = msg;
+  el.className = 'alert ' + type + ' show';
+  if (type !== 'info') setTimeout(()=> el.classList.remove('show'), 4000);
+}
+
+/* -----------------------------------------------
+   INIT
+   ----------------------------------------------- */
+updateGasStatus();
+</script>
+</body>
+</html>
