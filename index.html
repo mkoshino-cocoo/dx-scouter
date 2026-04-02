@@ -1167,6 +1167,16 @@ body::before {
           </div>
         </div>
         <div id="startAlert" class="alert error"></div>
+        <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;cursor:pointer;text-align:left;">
+          <input type="checkbox" id="consentCheck" style="margin-top:3px;width:16px;height:16px;accent-color:var(--accent);flex-shrink:0;">
+          <span style="font-size:12px;color:var(--text2);line-height:1.7;">
+            入力した個人情報（氏名・会社名・メールアドレス等）は、診断結果の集計・分析のみに使用し、
+            第三者への提供は行いません。
+            <a href="https://www.meti.go.jp/policy/it_policy/investment/dx-nintei/" target="_blank"
+               style="color:var(--accent);text-decoration:none;">DX認定制度</a>への参照目的で経済産業省のサイトにリンクする場合があります。
+            上記に同意します。
+          </span>
+        </label>
         <button class="btn-primary" id="startBtn" onclick="startQuiz()">▶ 戦闘力を計測する</button>
       </div>
     </section>
@@ -1404,6 +1414,12 @@ let results        = JSON.parse(localStorage.getItem('dxResults') || '[]');
 // =============================================
 const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbwbDd514aivCjf791o5fVy6T-l9DboNhjE2cLt-hL1Vtm9mh7fCCdmqKIT1oF_-82rl/exec';
 
+// =============================================
+// ★ GASと共有するシークレットトークン ★
+// Code.gs の ACCESS_TOKEN と同じ値にすること
+// =============================================
+const ACCESS_TOKEN = 'R%KnQXUs.@x5KDmUnmpv%!7d+uZ!n2';
+
 // localStorage に保存済みなら優先、なければ上の直書きURLを使う
 let gasUrl = localStorage.getItem('gasUrl') || DEFAULT_GAS_URL;
 let lastResult     = null; // 最後の診断結果（PDF生成用）
@@ -1448,6 +1464,11 @@ async function startQuiz() {
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     alert_el.textContent = '＊ 有効なメールアドレスを入力してください';
+    alert_el.classList.add('show');
+    return;
+  }
+  if (!document.getElementById('consentCheck').checked) {
+    alert_el.textContent = '＊ 個人情報の取り扱いに同意してください';
     alert_el.classList.add('show');
     return;
   }
@@ -1972,6 +1993,7 @@ async function exportPDF() {
 async function gasGet(action, params = {}) {
   const u = new URL(gasUrl);
   u.searchParams.set('action', action);
+  u.searchParams.set('token', ACCESS_TOKEN);
   Object.entries(params).forEach(([k,v]) => u.searchParams.set(k, v));
   const res = await fetch(u.toString(), { redirect: 'follow' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -1985,7 +2007,7 @@ async function gasGet(action, params = {}) {
  * GAS側で e.postData.contents を JSON.parse して受け取る。
  */
 async function gasPost(action, data) {
-  const body = JSON.stringify({ action, data });
+  const body = JSON.stringify({ action, data, token: ACCESS_TOKEN });
   const res  = await fetch(gasUrl, {
     method:   'POST',
     redirect: 'follow',
@@ -2081,9 +2103,29 @@ async function deleteQuestionFromGAS(id) {
 /* -----------------------------------------------
    ADMIN – PASSWORD
    ----------------------------------------------- */
+// ログイン失敗カウンター（セッション内のみ、リロードでリセット）
+let loginFailCount  = 0;
+let loginLockedUntil = 0;
+const MAX_FAIL = 5;         // 5回失敗でロック
+const LOCK_MINUTES = 30;    // 30分ロック
+
 function checkPw() {
+  const now = Date.now();
+
+  // ロックアウト中チェック
+  if (now < loginLockedUntil) {
+    const remaining = Math.ceil((loginLockedUntil - now) / 60000);
+    document.getElementById('pwErr').textContent =
+      `ログインを${MAX_FAIL}回失敗しました。${remaining}分後に再試行してください。`;
+    document.getElementById('pwInput').value = '';
+    return;
+  }
+
   const v = document.getElementById('pwInput').value;
   if (v === adminPassword) {
+    // 成功：カウンターリセット
+    loginFailCount   = 0;
+    loginLockedUntil = 0;
     isAdminLogged = true;
     document.getElementById('scr-pw').style.display    = 'none';
     document.getElementById('scr-admin').style.display = '';
@@ -2092,9 +2134,20 @@ function checkPw() {
     loadAdminData();
     updateGasStatus();
   } else {
-    document.getElementById('pwErr').textContent = 'パスワードが正しくありません';
+    // 失敗：カウントアップ
+    loginFailCount++;
     document.getElementById('pwInput').value = '';
     document.getElementById('pwInput').focus();
+
+    if (loginFailCount >= MAX_FAIL) {
+      loginLockedUntil = now + LOCK_MINUTES * 60 * 1000;
+      document.getElementById('pwErr').textContent =
+        `${MAX_FAIL}回連続で失敗しました。${LOCK_MINUTES}分間ロックします。`;
+    } else {
+      const left = MAX_FAIL - loginFailCount;
+      document.getElementById('pwErr').textContent =
+        `パスワードが正しくありません（あと${left}回失敗するとロックされます）`;
+    }
   }
 }
 function adminLogout() {
@@ -2107,7 +2160,8 @@ function changePw() {
   const cur = document.getElementById('curPw').value;
   const nw  = document.getElementById('newPw').value;
   if (cur !== adminPassword) { showAdminAlert('現在のパスワードが正しくありません', 'error'); return; }
-  if (nw.length < 6) { showAdminAlert('新しいパスワードは6文字以上にしてください', 'error'); return; }
+  if (nw.length < 8) { showAdminAlert('新しいパスワードは8文字以上にしてください', 'error'); return; }
+  if (!/[A-Za-z]/.test(nw) || !/[0-9]/.test(nw)) { showAdminAlert('パスワードは英字と数字を両方含めてください', 'error'); return; }
   adminPassword = nw;
   localStorage.setItem('adminPw', nw);
   document.getElementById('curPw').value = '';
