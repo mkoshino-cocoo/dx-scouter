@@ -1397,7 +1397,15 @@ let currentQ       = 0;
 let answers        = [];
 let userInfo       = {};
 let results        = JSON.parse(localStorage.getItem('dxResults') || '[]');
-let gasUrl         = localStorage.getItem('gasUrl') || '';
+// =============================================
+// ★ GAS URLをここに貼り付けてください ★
+// デプロイ後に発行された /exec で終わるURLを設定します
+// 例: 'https://script.google.com/macros/s/AKfycbz.../exec'
+// =============================================
+const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbwbDd514aivCjf791o5fVy6T-l9DboNhjE2cLt-hL1Vtm9mh7fCCdmqKIT1oF_-82rl/exec';
+
+// localStorage に保存済みなら優先、なければ上の直書きURLを使う
+let gasUrl = localStorage.getItem('gasUrl') || DEFAULT_GAS_URL;
 let lastResult     = null; // 最後の診断結果（PDF生成用）
 let adminPassword  = localStorage.getItem('adminPw') || 'admin123';
 let isAdminLogged  = false;
